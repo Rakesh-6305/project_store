@@ -174,21 +174,23 @@ def student_login():
     con = None  # Initialize connection to None
     try:
         if request.method == "POST":
-            u = request.form["username"]
-            p = request.form["password"]
-            logging.debug(f"Student login attempt with username: {u}")
+            username = request.form['username']
+            password = request.form['password']
 
             con = sqlite3.connect(DB_PATH)
-            student = con.execute(
-                "SELECT * FROM students WHERE username=? AND password=?",
-                (u, p)).fetchone()
+            cursor = con.cursor()
 
-            if student:
-                session["student"] = u
-                logging.debug("Student login successful.")
-                return redirect("/student_dashboard")
+            cursor.execute(
+                "SELECT * FROM students WHERE username=? AND password=?",
+                (username, password)
+            )
+
+            user = cursor.fetchone()
+            con.close()
+
+            if user:
+                return redirect('/student_dashboard')
             else:
-                logging.warning("Invalid student login attempt.")
                 return render_template("student_login.html", error="Invalid username or password.")
 
         return render_template("student_login.html")
