@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Project Idea - StudentProjectHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 10px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Bringing your visionary engineering concepts to life.</p>
+    </div>
+    <div class="container">
+        <h1 style="text-align: center;">Request Custom Project</h1>
+        <p style="text-align: center; color: var(--text-dim); margin-bottom: 30px;">Let's build your vision.</p>
+        <form action="/request_project" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Project Title</label>
+                <input type="text" id="title" name="title" required placeholder="Enter a catchy title for your project">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Project Description</label>
+                <textarea id="description" name="description" required placeholder="Describe what the project is about"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="problem_statement">Problem Statement</label>
+                <textarea id="problem_statement" name="problem_statement" required placeholder="What problem does this project solve?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="objectives">Objectives</label>
+                <textarea id="objectives" name="objectives" required placeholder="What are the main goals?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="outcomes">Outcomes</label>
+                <textarea id="outcomes" name="outcomes" required placeholder="What are the expected results?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="output_idea">Output Idea (Text/Process)</label>
+                <textarea id="output_idea" name="output_idea" required placeholder="How should the final output look or work?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="photos">Upload Images (Optional)</label>
+                <input type="file" id="photos" name="photos" multiple accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <label for="videos">Upload Videos (Optional)</label>
+                <input type="file" id="videos" name="videos" multiple accept="video/*">
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">Submit Project Request</button>
+        </form>
+        <div style="margin-top: 30px; border-top: 1px solid var(--glass-border); padding-top: 20px; text-align: center;">
+            <a href="/" class="back-link">← Back to Hub Home</a>
+        </div>
+    </div>
+</body>
+</html>

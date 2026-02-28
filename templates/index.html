@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudentProjectHub - Premium Engineering Repository</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 100px 20px;">
+        <h1 style="font-size: 4rem; margin-bottom: 20px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); font-size: 1.2rem; max-width: 800px; margin: 0 auto;">
+            Empowering the next generation of engineers with high-quality, real-world project resources.
+            Explore our curated repository of academic excellence.
+        </p>
+    </div>
+
+    <div class="container" style="max-width: 1200px; border: none; background: transparent; backdrop-filter: none; box-shadow: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 0 20px;">
+            <h2 style="margin: 0;">Verified Projects</h2>
+            <div style="display: flex; gap: 20px;">
+                {% if session.get('student') %}
+                    <span style="color: var(--accent); align-self: center;">Welcome, {{ session.get('student') }}!</span>
+                    <a href="/request_project" class="btn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">Request Project</a>
+                    <a href="/my_requests" class="btn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">My Requests</a>
+                    <a href="/logout" class="btn" style="background: var(--secondary);">Logout</a>
+                {% elif session.get('admin') %}
+                    <a href="/admin_dashboard" class="btn" style="background: var(--secondary);">Admin Hub</a>
+                    <a href="/logout" class="btn">Logout</a>
+                {% else %}
+                    <a href="/student_login" class="btn">Student Portal</a>
+                    <a href="/admin_login" class="btn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">Admin Login</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 40px; padding: 20px;">
+            {% for p in projects %}
+            <div class="card" style="margin: 0; display: flex; flex-direction: column; max-width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="font-size: 2rem; margin-bottom: 10px; background: none; -webkit-text-fill-color: var(--text-main); text-shadow: none;">{{p[1]}}</h3>
+                        {% if p[7] %}
+                        <div class="tech-stack">
+                            {% for tech in p[7].split(',') %}
+                            <span class="tech-tag">{{ tech.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p style="color: var(--accent); font-weight: 800; font-size: 1.8rem;">₹{{p[2]}}</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                    <div>
+                        <div class="project-detail-section" style="margin-bottom: 25px;">
+                            <h4 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 10px; font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Description</h4>
+                            <p style="color: var(--text-dim); line-height: 1.6;">{{p[3]}}</p>
+                        </div>
+
+                        {% if p[4] and p[4] != 'na' %}
+                        <div class="project-detail-section" style="margin-bottom: 25px;">
+                            <h4 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 10px; font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Problem Statement</h4>
+                            <p style="color: var(--text-dim); line-height: 1.6;">{{p[4]}}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if p[5] and p[5] != 'na' %}
+                        <div class="project-detail-section" style="margin-bottom: 25px;">
+                            <h4 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 10px; font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Objectives</h4>
+                            <p style="color: var(--text-dim); line-height: 1.6;">{{p[5]}}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if p[6] and p[6] != 'na' %}
+                        <div class="project-detail-section" style="margin-bottom: 25px;">
+                            <h4 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 10px; font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Outcomes</h4>
+                            <p style="color: var(--text-dim); line-height: 1.6;">{{p[6]}}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        {% if p[9] %}
+                        <div class="media-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                            {% for photo in p[9] %}
+                            <img src="{{ url_for('static', filename=photo) }}" style="width: 100%; border-radius: 12px; border: 1px solid var(--glass-border); cursor: pointer; transition: transform 0.3s ease;" onclick="window.open(this.src)">
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if p[10] %}
+                        <div class="video-gallery" style="display: flex; flex-direction: column; gap: 15px;">
+                            {% for video in p[10] %}
+                            <video src="{{ url_for('static', filename=video) }}" controls style="width: 100%; border-radius: 12px; border: 1px solid var(--glass-border);"></video>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; border-top: 1px solid var(--glass-border); padding-top: 25px; display: flex; justify-content: space-between; align-items: center;">
+                    {% if session.get('student') %}
+                        <div style="display: flex; gap: 15px; width: 100%;">
+                        {% if p[11] == 'none' %}
+                            <a href="/checkout/{{p[0]}}" style="flex: 2;"><button style="width: 100%; height: 50px;">Buy Project</button></a>
+                        {% elif p[11] == 'Pending' %}
+                            <button disabled style="flex: 2; height: 50px;">Payment Verification Pending</button>
+                        {% elif p[11] == 'Confirmed' %}
+                            {% if p[8] %}
+                                <a href="/download/{{p[0]}}" style="flex: 1;"><button type="button" style="width: 100%; height: 50px; background-color: #22c55e;">Download Project</button></a>
+                            {% else %}
+                                <button type="button" disabled style="flex: 1; height: 50px; background-color: var(--glass); color: var(--text-dim);">File Processing</button>
+                            {% endif %}
+                        {% endif %}
+                        {% if p[11] != 'none' %}
+                            <button type="button" onclick="toggleOrderChat('{{ p[12] }}')" style="flex: 1; height: 50px; background: none; border: 1px solid var(--glass-border); cursor: pointer;">💬 Discussion</button>
+                        {% endif %}
+                        </div>
+                    {% else %}
+                        <a href="/student_login" style="display: block; width: 100%;"><button style="width: 100%; height: 50px;">Login to Purchase & View Media</button></a>
+                    {% endif %}
+
+                    {% if session.get('admin') %}
+                    <a href="/delete/{{p[0]}}" style="color: #ef4444; margin-left: 20px; font-weight: 600; text-decoration: none;" onclick="return confirm('Are you sure you want to delete this project?')">Delete</a>
+                    {% endif %}
+                </div>
+
+                {% if session.get('student') and p[12] %}
+                <div id="order-chat-{{ p[12] }}" style="display: none; margin-top: 20px;">
+                    <div class="chat-container" style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 16px;">
+                        <div id="order-chat-box-{{ p[12] }}" class="chat-box" style="height: 250px; overflow-y: auto; margin-bottom: 15px; padding: 10px;">
+                            <!-- Messages will load here -->
+                        </div>
+                        <div class="chat-input-area" style="display: flex; gap: 10px;">
+                            <input type="text" id="order-chat-input-{{ p[12] }}" class="chat-input" placeholder="Type your message..." style="flex: 1;">
+                            <button type="button" onclick="sendOrderMessage('{{ p[12] }}')" style="padding: 0 25px;">Send</button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer style="text-align: center; color: var(--text-dim); padding: 40px; margin-top: 60px; font-size: 0.9rem; border-top: 1px solid var(--glass-border);">
+        &copy; 2026 StudentProjectHub | Premium Engineering Repository
+    </footer>
+
+    <script>
+        let chatIntervals = {};
+
+        function toggleOrderChat(orderId) {
+            if (!orderId) return;
+            const chatDiv = document.getElementById(`order-chat-${orderId}`);
+            if (chatDiv.style.display === 'none') {
+                chatDiv.style.display = 'block';
+                loadOrderMessages(orderId);
+                chatIntervals[orderId] = setInterval(() => loadOrderMessages(orderId), 3000);
+            } else {
+                chatDiv.style.display = 'none';
+                if (chatIntervals[orderId]) {
+                    clearInterval(chatIntervals[orderId]);
+                }
+            }
+        }
+
+        async function loadOrderMessages(orderId) {
+            try {
+                const response = await fetch(`/get_order_messages/${orderId}`);
+                const data = await response.json();
+                const chatBox = document.getElementById(`order-chat-box-${orderId}`);
+                if (!chatBox) return;
+                
+                chatBox.innerHTML = '';
+                if (data.messages) {
+                    data.messages.forEach(msg => {
+                        const div = document.createElement('div');
+                        div.className = `message ${msg.sender.toLowerCase().includes('admin') ? 'admin' : 'student'}`;
+                        div.style.marginBottom = '10px';
+                        div.style.padding = '10px';
+                        div.style.borderRadius = '12px';
+                        div.style.background = msg.sender.toLowerCase().includes('admin') ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+                        div.innerHTML = `<strong style="color: var(--primary); font-size: 0.85rem;">${msg.sender}</strong><div style="margin-top: 4px;">${msg.message}</div>`;
+                        chatBox.appendChild(div);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            } catch (error) {
+                console.error("Chat loading failed:", error);
+            }
+        }
+
+        async function sendOrderMessage(orderId) {
+            const input = document.getElementById(`order-chat-input-${orderId}`);
+            const message = input.value;
+            if (!message) return;
+
+            try {
+                await fetch(`/send_order_message/${orderId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                input.value = '';
+                loadOrderMessages(orderId);
+            } catch (error) {
+                console.error("Message sending failed:", error);
+            }
+        }
+    </script>
+</body>
+</html>

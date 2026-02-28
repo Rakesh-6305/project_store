@@ -1,0 +1,57 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - StudentProjectHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 10px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Securing your investment in innovation.</p>
+    </div>
+
+    <div class="container">
+        <h1>Complete Purchase</h1>
+        <a href="/">Cancel & Return</a>
+        <hr>
+
+        <div class="checkout-card">
+            <h2>{{ project[1] }}</h2>
+            <p>Amount: <strong style="color: var(--accent); font-size: 1.5rem;">₹{{ project[2] }}</strong></p>
+            
+            <div class="form-group" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid var(--glass-border); margin: 20px 0;">
+                <h3 style="color: var(--primary); margin-top: 0;">Step 1: Pay using UPI</h3>
+                <p>Send amount to UPI Number or ID:</p>
+                <p><strong>UPI Number:</strong> <span style="font-size: 1.2rem; color: var(--accent);">6305945563</span></p>
+                <p><strong>UPI ID:</strong> <span style="font-size: 1.2rem; color: var(--accent);">6305945563-2@ibl</span></p>
+                <p><small style="color: var(--text-dim);">(Please ensure you pay the exact amount)</small></p>
+            </div>
+
+            <div class="form-group" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px;">
+                <h3 style="color: #ef4444; margin-top: 0;">⚠️ Payment Security Warning</h3>
+                <p style="font-weight: 500;">Pay online ONLY to the official admin UPI ID or number shown above.</p>
+                <p style="font-size: 0.85rem; opacity: 0.8;">The admin is NOT responsible for payments made to incorrect or unauthorized accounts.</p>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h3 style="color: var(--primary);">Step 2: Submit Details</h3>
+                <form action="/submit_payment/{{ project[0] }}" method="POST">
+                    <div class="form-group">
+                        <label>Transaction ID / Ref No.</label>
+                        <input type="text" name="transaction_id" placeholder="Enter UPI Ref ID" required>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; height: 50px; font-size: 1.1rem; margin-top: 10px;">Submit Payment Details</button>
+                </form>
+            </div>
+
+            <div style="text-align: left; margin-top: 30px; padding: 20px; border-top: 1px solid var(--glass-border);">
+                <h3 style="font-size: 1rem; color: var(--text-dim);">Contact Support</h3>
+                <p style="font-size: 0.9rem;"><strong>📧 Email:</strong> rakeshgundebommu@gmail.com</p>
+                <p style="font-size: 0.9rem;"><strong>📞 Number:</strong> 6305945563</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

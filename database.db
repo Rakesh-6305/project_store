@@ -1,0 +1,32 @@
+import sqlite3
+
+con = sqlite3.connect("database.db")
+
+con.execute("""
+CREATE TABLE projects(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+title TEXT,
+price INTEGER
+)
+""")
+
+con.execute("""
+CREATE TABLE users(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+username TEXT,
+password TEXT
+)
+""")
+
+con.execute("""
+CREATE TABLE admin(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+username TEXT,
+password TEXT
+)
+""")
+
+con.execute("INSERT INTO admin(username,password) VALUES('admin','admin123')")
+
+con.commit()
+exit()

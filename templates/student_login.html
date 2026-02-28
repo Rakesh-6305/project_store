@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Student Login - StudentProjectHub</title>
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 10px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Access your engineering gateway.</p>
+    </div>
+    <div class="container">
+        <h1 style="text-align: center;">Welcome</h1>
+        <p style="text-align: center; color: var(--text-dim); margin-bottom: 30px;">Login to the Hub</p>
+        
+        <form method="POST">
+            <div class="form-group">
+                <input name="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input name="password" type="password" placeholder="Password" required>
+            </div>
+            <button type="submit" style="width: 100%;">Enter Hub</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 25px;">Don't have an account? <a href="/register">Register here</a></p>
+        
+        <div style="margin-top: 40px; font-size: 13px; color: var(--text-dim); text-align: center; border-top: 1px solid var(--glass-border); padding-top: 20px;">
+            <p>📧 support@projecthub.com</p>
+            <p>📞 +91 6305945563</p>
+        </div>
+    </div>
+</body>
+</html>

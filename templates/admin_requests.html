@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Project Requests - StudentProjectHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 10px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Review and manage the world's project visions.</p>
+    </div>
+    <div class="container">
+        <h1>Student Project Requests</h1>
+        <a href="/admin_dashboard">Back to Dashboard</a> | <a href="/admin_orders">View Store Orders</a>
+        <hr>
+
+        {% for req in requests %}
+        <div class="request-card">
+            <div class="request-header">
+                <div>
+                    <div class="request-title">{{ req.title }}</div>
+                    <div class="student-info">Requested by: {{ req.student_username }}</div>
+                </div>
+                <div>
+                    <button class="request-chat-toggle btn" data-request-id="{{ req.id }}" style="background: #e2e8f0; margin-right: 10px;">💬 Chat</button>
+                    <span class="status-badge status-{{ req.status.lower().replace(' ', '-') }}">{{ req.status }}</span>
+                </div>
+            </div>
+
+            <div id="chat-section-{{ req.id }}" style="display: none; margin-bottom: 20px;">
+                <div class="chat-container">
+                    <div id="chat-box-{{ req.id }}" class="chat-box" style="height: 150px;">
+                        <!-- Messages will load here -->
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input-{{ req.id }}" class="chat-input" placeholder="Reply to student...">
+                        <button class="send-message-btn send-btn" data-request-id="{{ req.id }}">Send</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="content-grid">
+                <div class="content-item">
+                    <strong>Description</strong>
+                    <p>{{ req.description }}</p>
+                </div>
+                <div class="content-item">
+                    <strong>Problem Statement</strong>
+                    <p>{{ req.problem_statement }}</p>
+                </div>
+                <div class="content-item">
+                    <strong>Objectives</strong>
+                    <p>{{ req.objectives }}</p>
+                </div>
+                <div class="content-item">
+                    <strong>Outcomes</strong>
+                    <p>{{ req.outcomes }}</p>
+                </div>
+                <div class="content-item" style="grid-column: span 2;">
+                    <strong>Output Idea</strong>
+                    <p>{{ req.output_idea }}</p>
+                </div>
+            </div>
+
+            {% if req.photos or req.videos %}
+            <div class="media-section">
+                <strong>Submitted Media</strong>
+                <div class="media-list">
+                    {% for photo in req.photos %}
+                    <a href="{{ url_for('static', filename=photo) }}" target="_blank">
+                        <img src="{{ url_for('static', filename=photo) }}" alt="Photo">
+                    </a>
+                    {% endfor %}
+                    {% for video in req.videos %}
+                    <video src="{{ url_for('static', filename=video) }}" controls></video>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="actions">
+                {% if req.status == 'Requested' %}
+                <form action="/admin_set_price/{{ req.id }}" method="POST" class="price-form">
+                    <strong>Set Price (₹):</strong>
+                    <input type="number" name="price" required min="1" placeholder="Enter amount">
+                    <button type="submit" class="btn btn-primary">Accept & Set Price</button>
+                </form>
+                {% elif req.status == 'Pending' %}
+                <div class="payment-info">
+                    <strong>Payment Verification Needed</strong>
+                    <span style="margin: 0 15px;">TXN ID: <strong>{{ req.transaction_id }}</strong></span>
+                    <span style="margin: 0 15px;">Price: <strong>₹{{ req.price }}</strong></span>
+                </div>
+                <form action="/admin_complete_request/{{ req.id }}" method="POST" enctype="multipart/form-data" class="upload-form">
+                    <input type="file" name="final_file" required>
+                    <button type="submit" class="btn btn-success">Verify & Upload Project</button>
+                </form>
+                {% elif req.status == 'Price Set' %}
+                <span>Waiting for student to pay <strong>₹{{ req.price }}</strong></span>
+                {% elif req.status == 'Completed' %}
+                <span>Project completed and delivered.</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+<!-- Global 3D effects and handlers in 3d_engine.js -->
+</body>
+
+</html>

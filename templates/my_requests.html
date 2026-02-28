@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Requests - StudentProjectHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 10px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Track your journey from idea to 3D reality.</p>
+    </div>
+    <div class="container">
+        <a href="/">Home</a> | <a href="/request_project">New Request</a>
+        <hr>
+        
+        {% if requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req[2] }}</td>
+                    <td>
+                        <span class="status status-{{ req[9].lower().replace(' ', '-') }}">{{ req[9] }}</span>
+                        <button class="request-chat-toggle btn" data-request-id="{{ req[0] }}" style="background: #e2e8f0; margin-left: 10px;">💬 Chat</button>
+                    </td>
+                    <td>
+                        {% if req[8] > 0 %}
+                        ₹{{ req[8] }}
+                        {% else %}
+                        TBD
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if req[9] == 'Price Set' %}
+                        <form action="/submit_request_payment/{{ req[0] }}" method="POST" class="payment-form">
+                            <input type="text" name="transaction_id" placeholder="Enter Transaction ID" required>
+                            <button type="submit" class="btn btn-pay">Submit Payment</button>
+                        </form>
+                        {% elif req[9] == 'Completed' %}
+                            {% if req[11] %}
+                                <a href="/download_request/{{ req[0] }}" class="btn btn-download">Download Files</a>
+                            {% else %}
+                                <span style="color: var(--text-dim);">File Pending Upload</span>
+                            {% endif %}
+                        {% elif req[9] == 'Pending' %}
+                        Waiting for Admin verification
+                        {% else %}
+                        Wait for admin to set price
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr id="chat-row-{{ req[0] }}" style="display: none;">
+                    <td colspan="4">
+                        <div class="chat-container">
+                            <div id="chat-box-{{ req[0] }}" class="chat-box">
+                                <!-- Messages will load here -->
+                            </div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chat-input-{{ req[0] }}" class="chat-input" placeholder="Type your query...">
+                                <button class="send-message-btn send-btn" data-request-id="{{ req[0] }}">Send</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>You haven't submitted any project requests yet.</p>
+        {% endif %}
+    </div>
+
+<!-- Global 3D effects and handlers in 3d_engine.js -->
+</body>
+
+</html>
