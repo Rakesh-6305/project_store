@@ -115,6 +115,7 @@ def home():
 # ---------------- ADMIN LOGIN ----------------
 @app.route("/admin_login", methods=["GET", "POST"])
 def admin_login():
+    con = None  # Initialize connection to None
     try:
         if request.method == "POST":
             u = request.form["username"]
@@ -169,59 +170,60 @@ def admin_orders():
 # ADD PROJECT
 @app.route("/add_project",methods=["POST"])
 def add_project():
-    title=request.form["title"]
-    price=request.form["price"]
-    description=request.form.get("description", "")
-    problem_statement=request.form.get("problem_statement", "")
-    objectives=request.form.get("objectives", "")
-    outcomes=request.form.get("outcomes", "")
-    
-    technologies = request.form.get("technologies", "")
-    
-    photos = request.files.getlist("photos")
-    videos = request.files.getlist("videos")
-    project_file = request.files.get("project_file")
+    con = None  # Initialize connection to None
+    try:
+        title=request.form["title"]
+        price=request.form["price"]
+        description=request.form.get("description", "")
+        problem_statement=request.form.get("problem_statement", "")
+        objectives=request.form.get("objectives", "")
+        outcomes=request.form.get("outcomes", "")
+        
+        technologies = request.form.get("technologies", "")
+        
+        photos = request.files.getlist("photos")
+        videos = request.files.getlist("videos")
+        project_file = request.files.get("project_file")
 
-    con=sqlite3.connect(DB_PATH)
-    cursor = con.cursor()
-    
-    file_path = ""
-    if project_file and project_file.filename:
-        filename = secure_filename(project_file.filename)
-        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        project_file.save(path)
-        file_path = "uploads/" + filename
+        con=sqlite3.connect(DB_PATH)
+        cursor = con.cursor()
+        
+        file_path = ""
+        if project_file and project_file.filename:
+            filename = secure_filename(project_file.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            project_file.save(path)
+            file_path = "uploads/" + filename
 
-    # Insert main project details
-    cursor.execute("INSERT INTO projects(title,project_file,price,photo,video,description,problem_statement,objectives,outcomes,technologies) VALUES(?,?,?,?,?,?,?,?,?,?)",
-                (title,file_path,price,"","",description,problem_statement,objectives,outcomes,technologies))
-    project_id = cursor.lastrowid
+        # Insert main project details
+        cursor.execute("INSERT INTO projects(title,project_file,price,photo,video,description,problem_statement,objectives,outcomes,technologies) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                    (title,file_path,price,"","",description,problem_statement,objectives,outcomes,technologies))
+        project_id = cursor.lastrowid
 
-    
-    # Save photos
-    for photo in photos:
-        if photo and photo.filename:
-            filename = secure_filename(photo.filename)
-            photo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            photo.save(photo_path)
-            db_path = "uploads/" + filename
-            cursor.execute("INSERT INTO project_photos(project_id, photo_path) VALUES(?,?)", (project_id, db_path))
-            
-    # Save videos
-    for video in videos:
-        if video and video.filename:
-            filename = secure_filename(video.filename)
-            video_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            video.save(video_path)
-            db_path = "uploads/" + filename
-            cursor.execute("INSERT INTO project_videos(project_id, video_path) VALUES(?,?)", (project_id, db_path))
+        # Save photos
+        for photo in photos:
+            if photo and photo.filename:
+                filename = secure_filename(photo.filename)
+                photo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                photo.save(photo_path)
+                db_path = "uploads/" + filename
+                cursor.execute("INSERT INTO project_photos(project_id, photo_path) VALUES(?,?)", (project_id, db_path))
 
-    con.commit()
-    con.close()
+        # Save videos
+        for video in videos:
+            if video and video.filename:
+                filename = secure_filename(video.filename)
+                video_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                video.save(video_path)
+                db_path = "uploads/" + filename
+                cursor.execute("INSERT INTO project_videos(project_id, video_path) VALUES(?,?)", (project_id, db_path))
 
-    return redirect("/admin_dashboard")
+        con.commit()
+        return redirect("/admin_dashboard")
 
-
+    finally:
+        if con:
+            con.close()
 
 
 
@@ -240,6 +242,7 @@ def delete(id):
 # ---------------- STUDENT LOGIN ----------------
 @app.route("/student_login", methods=["GET", "POST"])
 def student_login():
+    con = None  # Initialize connection to None
     try:
         if request.method == "POST":
             u = request.form["username"]
@@ -272,17 +275,23 @@ def student_login():
 # REGISTER
 @app.route("/register",methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        u=request.form["username"]
-        p=request.form["password"]
+    con = None  # Initialize connection to None
+    try:
+        if request.method == "POST":
+            u=request.form["username"]
+            p=request.form["password"]
 
-        con=sqlite3.connect(DB_PATH)
-        con.execute("INSERT INTO users(username,password) VALUES(?,?)",(u,p))
-        con.commit()
+            con=sqlite3.connect(DB_PATH)
+            con.execute("INSERT INTO users(username,password) VALUES(?,?)",(u,p))
+            con.commit()
 
-        return redirect("/student_login")
-    
-    return render_template("student_register.html")
+            return redirect("/student_login")
+        
+        return render_template("student_register.html")
+
+    finally:
+        if con:
+            con.close()
 
 
 # CHECKOUT (Manual UPI)
