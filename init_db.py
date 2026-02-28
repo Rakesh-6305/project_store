@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-# Define the database path
+# Update database path for Render environment
 db_path = os.path.join(os.getcwd(), "app_data.db")
 
 try:

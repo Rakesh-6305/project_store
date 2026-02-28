@@ -12,9 +12,12 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024 # Increased to 100MB per yo
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+# Update database path for Render environment
+DB_PATH = os.path.join(os.getcwd(), "app_data.db")
+
 # Database Initialization Check
 def init_db():
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.execute("""
     CREATE TABLE IF NOT EXISTS projects(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -97,7 +100,7 @@ def handle_sqlite_error(error):
 @app.route("/")
 def home():
     try:
-        con = sqlite3.connect("app_data.db")
+        con = sqlite3.connect(DB_PATH)
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         projects_raw = cur.execute("SELECT * FROM projects").fetchall()
@@ -118,7 +121,7 @@ def admin_login():
             p = request.form["password"]
             logging.debug(f"Admin login attempt with username: {u}")
 
-            con = sqlite3.connect("app_data.db")
+            con = sqlite3.connect(DB_PATH)
             admin = con.execute(
                 "SELECT * FROM admin WHERE username=? AND password=?",
                 (u, p)).fetchone()
@@ -154,7 +157,7 @@ def admin_dashboard():
 def admin_orders():
     if "admin" not in session:
         return redirect("/admin_login")
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     orders = con.execute("""
         SELECT orders.id, projects.title, orders.student_username, orders.status, orders.transaction_id
         FROM orders 
@@ -179,7 +182,7 @@ def add_project():
     videos = request.files.getlist("videos")
     project_file = request.files.get("project_file")
 
-    con=sqlite3.connect("app_data.db")
+    con=sqlite3.connect(DB_PATH)
     cursor = con.cursor()
     
     file_path = ""
@@ -227,7 +230,7 @@ def add_project():
 def delete(id):
     if "admin" not in session:
         return redirect("/admin_login")
-    con=sqlite3.connect("app_data.db")
+    con=sqlite3.connect(DB_PATH)
     con.execute("DELETE FROM projects WHERE id=?",(id,))
     con.commit()
     con.close()
@@ -243,7 +246,7 @@ def student_login():
             p = request.form["password"]
             logging.debug(f"Student login attempt with username: {u}")
 
-            con = sqlite3.connect("app_data.db")
+            con = sqlite3.connect(DB_PATH)
             student = con.execute(
                 "SELECT * FROM students WHERE username=? AND password=?",
                 (u, p)).fetchone()
@@ -273,7 +276,7 @@ def register():
         u=request.form["username"]
         p=request.form["password"]
 
-        con=sqlite3.connect("app_data.db")
+        con=sqlite3.connect(DB_PATH)
         con.execute("INSERT INTO users(username,password) VALUES(?,?)",(u,p))
         con.commit()
 
@@ -288,7 +291,7 @@ def checkout(id):
     if "student" not in session:
         return redirect("/student_login")
         
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     project = con.execute("SELECT id, title, price FROM projects WHERE id=?", (id,)).fetchone()
     
     if not project:
@@ -306,7 +309,7 @@ def submit_payment(project_id):
     txn_id = request.form.get("transaction_id")
     student_username = session["student"]
     
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     
     # Check if already has a record
     existing = con.execute("SELECT * FROM orders WHERE project_id=? AND student_username=?", 
@@ -345,7 +348,7 @@ def request_project():
         photos = request.files.getlist("photos")
         videos = request.files.getlist("videos")
 
-        con = sqlite3.connect("app_data.db")
+        con = sqlite3.connect(DB_PATH)
         cursor = con.cursor()
         
         cursor.execute("""
@@ -386,7 +389,7 @@ def my_requests():
         return redirect("/student_login")
     
     student_username = session["student"]
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     requests = con.execute("SELECT * FROM project_requests WHERE student_username=?", (student_username,)).fetchall()
     con.close()
     
@@ -399,7 +402,7 @@ def submit_request_payment(request_id):
         return redirect("/student_login")
     
     txn_id = request.form.get("transaction_id")
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.execute("UPDATE project_requests SET transaction_id=?, status='Pending' WHERE id=?", (txn_id, request_id))
     con.commit()
     con.close()
@@ -412,7 +415,7 @@ def download_request(request_id):
     if "student" not in session:
         return redirect("/student_login")
     
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     req = con.execute("SELECT final_file, status FROM project_requests WHERE id=?", (request_id,)).fetchone()
     con.close()
     
@@ -434,7 +437,7 @@ def admin_requests():
     if "admin" not in session:
         return redirect("/admin_login")
     
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
     requests_raw = con.execute("SELECT * FROM project_requests ORDER BY id DESC").fetchall()
     
@@ -457,7 +460,7 @@ def admin_set_price(request_id):
         return redirect("/admin_login")
     
     price = request.form["price"]
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.execute("UPDATE project_requests SET price=?, status='Price Set' WHERE id=?", (price, request_id))
     con.commit()
     con.close()
@@ -477,7 +480,7 @@ def admin_complete_request(request_id):
         final_file.save(path)
         db_path = "uploads/" + filename
         
-        con = sqlite3.connect("app_data.db")
+        con = sqlite3.connect(DB_PATH)
         con.execute("UPDATE project_requests SET final_file=?, status='Completed' WHERE id=?", (db_path, request_id))
         con.commit()
         con.close()
@@ -491,7 +494,7 @@ def confirm_payment(order_id):
     if "admin" not in session:
         return redirect("/admin_login")
         
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.execute("UPDATE orders SET status='Confirmed' WHERE id=?", (order_id,))
     con.commit()
     
@@ -514,7 +517,7 @@ def download(project_id):
         return redirect("/student_login")
         
     student_username = session["student"]
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     
     # Check if order is confirmed
     order = con.execute("SELECT status FROM orders WHERE project_id=? AND student_username=?", 
@@ -544,7 +547,7 @@ def send_message(request_id):
     if not message:
         return {"error": "Empty message"}, 400
         
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.execute("INSERT INTO request_messages(request_id, sender, message) VALUES(?,?,?)",
                 (request_id, sender, message))
     con.commit()
@@ -556,7 +559,7 @@ def get_messages(request_id):
     if "student" not in session and "admin" not in session:
         return {"error": "Unauthorized"}, 401
         
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
     messages = con.execute("SELECT * FROM request_messages WHERE request_id=? ORDER BY timestamp ASC",
                            (request_id,)).fetchall()
@@ -570,7 +573,7 @@ def get_order_messages(order_id):
     if "student" not in session and "admin" not in session:
         return {"error": "Unauthorized"}, 401
         
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
     messages = con.execute("SELECT * FROM order_messages WHERE order_id=? ORDER BY timestamp ASC",
                            (order_id,)).fetchall()
@@ -589,7 +592,7 @@ def send_order_message(order_id):
     if not message:
         return {"error": "Empty message"}, 400
         
-    con = sqlite3.connect("app_data.db")
+    con = sqlite3.connect(DB_PATH)
     con.execute("INSERT INTO order_messages(order_id, sender, message) VALUES(?,?,?)",
                 (order_id, sender, message))
     con.commit()
