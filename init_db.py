@@ -63,6 +63,17 @@ try:
     )
     """)
 
+    # Add students table creation
+    con.execute("""
+    CREATE TABLE IF NOT EXISTS students(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT NOT NULL
+    )
+    """)
+
     print("Database initialized successfully.")
 
 except sqlite3.Error as e:
