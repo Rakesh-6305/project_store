@@ -54,6 +54,15 @@ try:
     )
     """)
 
+    # Add admin table creation
+    con.execute("""
+    CREATE TABLE IF NOT EXISTS admin(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
+    )
+    """)
+
     print("Database initialized successfully.")
 
 except sqlite3.Error as e:
