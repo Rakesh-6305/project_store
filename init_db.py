@@ -25,6 +25,21 @@ def init_db():
     )
     """)
 
+    # Create admin table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS admin(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    )
+    """)
+
+    # Insert default admin account
+    cursor.execute("""
+    INSERT OR IGNORE INTO admin(username, password)
+    VALUES('admin', 'admin123')
+    """)
+
     # Create projects table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS projects(
