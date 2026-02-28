@@ -3,6 +3,7 @@ import sqlite3
 import os
 from werkzeug.utils import secure_filename
 import logging
+from init_db import init_db
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
@@ -16,79 +17,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 DB_PATH = os.path.join(os.getcwd(), "app_data.db")
 
 # Database Initialization Check
-def init_db():
-    con = sqlite3.connect(DB_PATH)
-    con.execute("""
-    CREATE TABLE IF NOT EXISTS projects(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    project_file TEXT,
-    price INTEGER,
-    photo TEXT,
-    video TEXT,
-    description TEXT,
-    problem_statement TEXT,
-    objectives TEXT,
-    outcomes TEXT,
-    technologies TEXT
-    )
-    """)
-    con.execute("""
-    CREATE TABLE IF NOT EXISTS project_requests(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    student_username TEXT,
-    title TEXT,
-    description TEXT,
-    problem_statement TEXT,
-    objectives TEXT,
-    outcomes TEXT,
-    output_idea TEXT,
-    price INTEGER DEFAULT 0,
-    status TEXT DEFAULT 'Requested',
-    transaction_id TEXT,
-    final_file TEXT
-    )
-    """)
-    con.execute("""
-    CREATE TABLE IF NOT EXISTS request_photos(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    request_id INTEGER,
-    photo_path TEXT,
-    FOREIGN KEY(request_id) REFERENCES project_requests(id)
-    )
-    """)
-    con.execute("""
-    CREATE TABLE IF NOT EXISTS request_videos(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    request_id INTEGER,
-    video_path TEXT,
-    FOREIGN KEY(request_id) REFERENCES project_requests(id)
-    )
-    """)
-    con.execute("""
-    CREATE TABLE IF NOT EXISTS request_messages(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    request_id INTEGER,
-    sender TEXT,
-    message TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(request_id) REFERENCES project_requests(id)
-    )
-    """)
-    con.execute("""
-    CREATE TABLE IF NOT EXISTS order_messages(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    order_id INTEGER,
-    sender TEXT,
-    message TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(order_id) REFERENCES orders(id)
-    )
-    """)
-    con.commit()
-    con.close()
-
-init_db()
+init_db()  # Ensure database and tables are created on startup
 
 # Define the missing handle_sqlite_error function
 def handle_sqlite_error(error):
