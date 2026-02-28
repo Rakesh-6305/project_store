@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, send_from_
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
+import logging
 
 app = Flask(__name__)
 app.secret_key="secret"
@@ -115,6 +116,7 @@ def admin_login():
         if request.method == "POST":
             u = request.form["username"]
             p = request.form["password"]
+            logging.debug(f"Admin login attempt with username: {u}")
 
             con = sqlite3.connect("app_data.db")
             admin = con.execute(
@@ -123,13 +125,16 @@ def admin_login():
 
             if admin:
                 session["admin"] = u
+                logging.debug("Admin login successful.")
                 return redirect("/admin_dashboard")
             else:
+                logging.warning("Invalid admin login attempt.")
                 return render_template("admin_login.html", error="Invalid username or password.")
 
         return render_template("admin_login.html")
 
     except sqlite3.OperationalError as e:
+        logging.error(f"Database error during admin login: {e}")
         return handle_sqlite_error(e)
     finally:
         if con:
@@ -236,6 +241,7 @@ def student_login():
         if request.method == "POST":
             u = request.form["username"]
             p = request.form["password"]
+            logging.debug(f"Student login attempt with username: {u}")
 
             con = sqlite3.connect("app_data.db")
             student = con.execute(
@@ -244,13 +250,16 @@ def student_login():
 
             if student:
                 session["student"] = u
+                logging.debug("Student login successful.")
                 return redirect("/student_dashboard")
             else:
+                logging.warning("Invalid student login attempt.")
                 return render_template("student_login.html", error="Invalid username or password.")
 
         return render_template("student_login.html")
 
     except sqlite3.OperationalError as e:
+        logging.error(f"Database error during student login: {e}")
         return handle_sqlite_error(e)
     finally:
         if con:
