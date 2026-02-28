@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, send_from_directory
+from flask import Flask, render_template, request, redirect, session, send_from_directory, jsonify
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
@@ -76,55 +76,17 @@ init_db()
 # HOME PAGE
 @app.route("/")
 def home():
-    con=sqlite3.connect("app_data.db")
-    projects_raw=con.execute("SELECT * FROM projects").fetchall()
-    
-    # We will enrich projects with user order status and multiple media
-    projects_with_order_info = []
-    
-    # Fetch all photos and videos mapped by project_id
-    all_photos = con.execute("SELECT project_id, photo_path FROM project_photos").fetchall()
-    all_videos = con.execute("SELECT project_id, video_path FROM project_videos").fetchall()
-    
-    photo_map = {}
-    for pid, path in all_photos:
-        photo_map.setdefault(pid, []).append(path)
-        
-    video_map = {}
-    for pid, path in all_videos:
-        video_map.setdefault(pid, []).append(path)
-    
-    if "student" in session:
-        student_username = session["student"]
-        orders = con.execute("SELECT project_id, status, id FROM orders WHERE student_username=?", 
-                             (student_username,)).fetchall()
-        order_dict = {o[0]: (o[1], o[2]) for o in orders}  # project_id -> (status, order_id)
-        
-        for p in projects_raw:
-            pid = p[0]
-            order_info = order_dict.get(pid, ("none", None))
-            status = order_info[0]
-            oid = order_info[1]
-            photos = photo_map.get(pid, [])
-            videos = video_map.get(pid, [])
-            
-            # Map index (0:id, 1:title, 2:price, 3:description, 4:problem, 5:objectives, 6:outcomes, 7:technologies, 8:project_file, 9:photos_list, 10:videos_list, 11:status, 12:order_id)
-            # Database columns: p[1]:title, p[2]:price, p[5]:description, p[6]:problem, p[7]:objectives, p[8]:outcomes, p[10]:tech, p[9]:project_file
-            projects_with_order_info.append((pid, p[1], p[2], p[5], p[6], p[7], p[8], p[10], p[9], photos, videos, status, oid))
-            
-        con.close()
-        return render_template("index.html", projects=projects_with_order_info)
-    else:
-        for p in projects_raw:
-            pid = p[0]
-            photos = photo_map.get(pid, [])
-            videos = video_map.get(pid, [])
-            # Map index (0:id, 1:title, 2:price, 3:description, 4:problem, 5:objectives, 6:outcomes, 7:technologies, 8:project_file, 9:photos_list, 10:videos_list, 11:status, 12:order_id)
-            projects_with_order_info.append((pid, p[1], p[2], p[5], p[6], p[7], p[8], p[10], p[9], photos, videos, "none", None))
-        con.close()
-        return render_template('index.html', projects=projects_with_order_info)
-
-
+    try:
+        con = sqlite3.connect("app_data.db")
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        projects_raw = cur.execute("SELECT * FROM projects").fetchall()
+        return render_template("index.html", projects=projects_raw)
+    except sqlite3.OperationalError as e:
+        return handle_sqlite_error(e)
+    finally:
+        if con:
+            con.close()
 
 
 # ---------------- ADMIN LOGIN ----------------
