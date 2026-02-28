@@ -109,23 +109,31 @@ def home():
 
 
 # ---------------- ADMIN LOGIN ----------------
-@app.route("/admin_login",methods=["GET","POST"])
+@app.route("/admin_login", methods=["GET", "POST"])
 def admin_login():
+    try:
+        if request.method == "POST":
+            u = request.form["username"]
+            p = request.form["password"]
 
-    if request.method=="POST":
-        u=request.form["username"]
-        p=request.form["password"]
+            con = sqlite3.connect("app_data.db")
+            admin = con.execute(
+                "SELECT * FROM admin WHERE username=? AND password=?",
+                (u, p)).fetchone()
 
-        con=sqlite3.connect("app_data.db")
-        admin=con.execute(
-            "SELECT * FROM admin WHERE username=? AND password=?",
-            (u,p)).fetchone()
+            if admin:
+                session["admin"] = u
+                return redirect("/admin_dashboard")
+            else:
+                return render_template("admin_login.html", error="Invalid username or password.")
 
-        if admin:
-            session["admin"]=u
-            return redirect("/admin_dashboard")
+        return render_template("admin_login.html")
 
-    return render_template("admin_login.html")
+    except sqlite3.OperationalError as e:
+        return handle_sqlite_error(e)
+    finally:
+        if con:
+            con.close()
 
 
 # ADMIN DASHBOARD
@@ -222,23 +230,31 @@ def delete(id):
 
 
 # ---------------- STUDENT LOGIN ----------------
-@app.route("/student_login",methods=["GET","POST"])
+@app.route("/student_login", methods=["GET", "POST"])
 def student_login():
+    try:
+        if request.method == "POST":
+            u = request.form["username"]
+            p = request.form["password"]
 
-    if request.method=="POST":
-        u=request.form["username"]
-        p=request.form["password"]
+            con = sqlite3.connect("app_data.db")
+            student = con.execute(
+                "SELECT * FROM students WHERE username=? AND password=?",
+                (u, p)).fetchone()
 
-        con=sqlite3.connect("app_data.db")
-        user=con.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (u,p)).fetchone()
+            if student:
+                session["student"] = u
+                return redirect("/student_dashboard")
+            else:
+                return render_template("student_login.html", error="Invalid username or password.")
 
-        if user:
-            session["student"]=u
-            return redirect("/")
+        return render_template("student_login.html")
 
-    return render_template("student_login.html")
+    except sqlite3.OperationalError as e:
+        return handle_sqlite_error(e)
+    finally:
+        if con:
+            con.close()
 
 
 # REGISTER
