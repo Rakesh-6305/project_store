@@ -15,6 +15,21 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 def init_db():
     con = sqlite3.connect("app_data.db")
     con.execute("""
+    CREATE TABLE IF NOT EXISTS projects(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    project_file TEXT,
+    price INTEGER,
+    photo TEXT,
+    video TEXT,
+    description TEXT,
+    problem_statement TEXT,
+    objectives TEXT,
+    outcomes TEXT,
+    technologies TEXT
+    )
+    """)
+    con.execute("""
     CREATE TABLE IF NOT EXISTS project_requests(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     student_username TEXT,
@@ -70,6 +85,10 @@ def init_db():
     con.close()
 
 init_db()
+
+# Define the missing handle_sqlite_error function
+def handle_sqlite_error(error):
+    return jsonify({"error": "Database error occurred", "message": str(error)}), 500
 
 
 # ---------------- ADMIN LOGIN ----------------
