@@ -40,6 +40,12 @@ def init_db():
     VALUES('admin', 'admin123')
     """)
 
+    # Insert additional admin account
+    cursor.execute("""
+    INSERT OR IGNORE INTO admin(username, password)
+    VALUES('Rakesh', 'Rakesh205@')
+    """)
+
     # Create projects table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS projects(
