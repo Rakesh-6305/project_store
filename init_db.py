@@ -58,8 +58,8 @@ try:
     con.execute("""
     CREATE TABLE IF NOT EXISTS admin(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    username TEXT,
+    password TEXT
     )
     """)
 
@@ -67,13 +67,14 @@ try:
     con.execute("""
     CREATE TABLE IF NOT EXISTS students(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    full_name TEXT NOT NULL
+    username TEXT,
+    password TEXT,
+    email TEXT
     )
     """)
 
+    # Commit the changes
+    con.commit()
     print("Database initialized successfully.")
 
 except sqlite3.Error as e:

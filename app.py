@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import logging
 
 app = Flask(__name__)
-app.secret_key="secret"
+app.secret_key = os.environ.get("SECRET_KEY", "dev")
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024 # Increased to 100MB per your suggestion
 
