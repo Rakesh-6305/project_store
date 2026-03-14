@@ -4,6 +4,9 @@ import os
 from werkzeug.utils import secure_filename
 import shutil
 
+# Get the absolute path to the directory containing this script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
 app.secret_key="secret"
 
@@ -12,17 +15,24 @@ IS_VERCEL = os.environ.get('VERCEL') == '1'
 if IS_VERCEL:
     app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
     DB_NAME = '/tmp/app_data.db'
-    # Copy db to /tmp if it doesn't exist there so it can be read/written
-    if not os.path.exists(DB_NAME) and os.path.exists('app_data.db'):
-        shutil.copy2('app_data.db', DB_NAME)
+    
+    # Ensure /tmp/uploads exists
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    
+    # Try to copy DB. If it fails due to paths, initialize empty.
+    bundled_db = os.path.join(BASE_DIR, 'app_data.db')
+    if not os.path.exists(DB_NAME) and os.path.exists(bundled_db):
+        try:
+            shutil.copy2(bundled_db, DB_NAME)
+        except Exception as e:
+            print(f"Failed to copy DB: {e}")
 else:
-    app.config['UPLOAD_FOLDER'] = 'static/uploads'
-    DB_NAME = 'app_data.db'
+    app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
+    DB_NAME = os.path.join(BASE_DIR, 'app_data.db')
+    # Ensure upload directory exists locally
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024 # Increased to 100MB per your suggestion
-
-# Ensure upload directory exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Database Initialization Check
 def init_db():
