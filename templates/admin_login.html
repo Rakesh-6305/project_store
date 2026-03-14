@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Admin Login - StudentProjectHub</title>
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 10px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Restricted Access: Hub Orchestrator Login.</p>
+    </div>
+    <div class="container">
+        <form method="POST">
+            <div class="form-group">
+                <input name="username" placeholder="Admin ID" required>
+            </div>
+            <div class="form-group">
+                <input name="password" type="password" placeholder="Key" required>
+            </div>
+            <button type="submit" style="width: 100%;">Authorize</button>
+        </form>
+        
+        <div style="margin-top: 40px; font-size: 13px; color: var(--text-dim); text-align: center; border-top: 1px solid var(--glass-border); padding-top: 20px;">
+            <p>Restricted Access Area</p>
+        </div>
+    </div>
+</body>
+</html>

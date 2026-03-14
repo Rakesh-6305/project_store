@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Orders - StudentProjectHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="hero-section" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 10px;">StudentProjectHub</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Manage store transactions with surgical precision.</p>
+    </div>
+    <div class="container">
+        <h1>Admin - Store Orders Management</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Orchestrating the exchange of innovation.</p>
+        <a href="/admin_dashboard">Back to Project Management</a> | <a href="/">Home</a>
+<hr>
+
+<h2>Student Orders</h2>
+<table border="1">
+    <tr>
+        <th>Order ID</th>
+        <th>Student</th>
+        <th>Project Name</th>
+        <th>Status</th>
+        <th>Transaction ID</th>
+        <th>Action</th>
+    </tr>
+    {% for order in orders %}
+    <tr>
+        <td>{{ order[0] }}</td>
+        <td>{{ order[2] }}</td>
+        <td>{{ order[1] }}</td>
+        <td>{{ order[3] }}</td>
+        <td>{{ order[4] }}</td>
+        <td>
+            {% if order[3] == 'Pending' %}
+            <a href="/confirm_payment/{{ order[0] }}">Confirm Payment</a>
+            {% else %}
+            Confirmed
+            {% endif %}
+            <button class="chat-toggle-btn" data-order-id="{{ order[0] }}" style="margin-left: 10px; cursor: pointer;">💬 Chat</button>
+        </td>
+    </tr>
+    <tr id="order-chat-row-{{ order[0] }}" style="display: none;">
+        <td colspan="6">
+            <div class="chat-container" style="margin: 10px 0;">
+                <div id="order-chat-box-{{ order[0] }}" class="chat-box" style="height: 150px;">
+                    <!-- Messages will load here -->
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="order-chat-input-{{ order[0] }}" class="chat-input" placeholder="Reply to student...">
+                    <button class="send-order-msg-btn" data-order-id="{{ order[0] }}" class="send-btn">Send</button>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+    let chatIntervals = {};
+
+    function toggleOrderChat(orderId) {
+        const row = document.getElementById(`order-chat-row-${orderId}`);
+        if (row.style.display === 'none') {
+            row.style.display = 'table-row';
+            loadOrderMessages(orderId);
+            chatIntervals[orderId] = setInterval(() => loadOrderMessages(orderId), 3000);
+        } else {
+            row.style.display = 'none';
+            clearInterval(chatIntervals[orderId]);
+        }
+    }
+
+    async function loadOrderMessages(orderId) {
+        const response = await fetch(`/get_order_messages/${orderId}`);
+        const data = await response.json();
+        const chatBox = document.getElementById(`order-chat-box-${orderId}`);
+        chatBox.innerHTML = '';
+        if (data.messages) {
+            data.messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.sender === 'Admin' ? 'admin' : 'student'}`;
+                div.innerHTML = `<strong>${msg.sender}:</strong><br>${msg.message}`;
+                chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    async function sendOrderMessage(orderId) {
+        const input = document.getElementById(`order-chat-input-${orderId}`);
+        const message = input.value;
+        if (!message) return;
+
+        await fetch(`/send_order_message/${orderId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+
+        input.value = '';
+        loadOrderMessages(orderId);
+    }
+</script>
+
+
+    </div>
+</body>
+</html>
