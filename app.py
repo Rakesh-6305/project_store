@@ -604,9 +604,13 @@ def send_order_message(order_id):
     return {"status": "success"}
 
 
+# Expose the app for Vercel
+app = app
+
 if __name__ == "__main__":
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    if not IS_VERCEL:
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host="0.0.0.0", port=port)
 
